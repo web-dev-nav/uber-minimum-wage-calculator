@@ -9,12 +9,24 @@ class UberApiService
 {
     private $clientId;
     private $clientSecret;
-    private $baseUrl = 'https://api.uber.com/v1.2';
+    private $baseUrl;
+    private $authUrl;
 
     public function __construct()
     {
         $this->clientId = config('services.uber.client_id');
         $this->clientSecret = config('services.uber.client_secret');
+        
+        // Use sandbox URLs for test environment
+        $isSandbox = config('services.uber.sandbox', true);
+        
+        if ($isSandbox) {
+            $this->baseUrl = 'https://sandbox-api.uber.com/v1.2';
+            $this->authUrl = 'https://login.uber.com/oauth/v2';
+        } else {
+            $this->baseUrl = 'https://api.uber.com/v1.2';
+            $this->authUrl = 'https://login.uber.com/oauth/v2';
+        }
     }
 
     public function getAuthorizationUrl(string $redirectUri): string
@@ -26,12 +38,12 @@ class UberApiService
             'scope' => 'partner.trips profile',
         ]);
 
-        return "https://login.uber.com/oauth/v2/authorize?{$params}";
+        return "{$this->authUrl}/authorize?{$params}";
     }
 
     public function exchangeCodeForToken(string $code, string $redirectUri): array
     {
-        $response = Http::post('https://login.uber.com/oauth/v2/token', [
+        $response = Http::post("{$this->authUrl}/token", [
             'client_id' => $this->clientId,
             'client_secret' => $this->clientSecret,
             'grant_type' => 'authorization_code',

@@ -9,7 +9,8 @@
       "Bash(php artisan make:controller:*)",
       "Bash(php artisan make:seeder:*)",
       "Bash(php artisan migrate:fresh:*)",
-      "Bash(mysql:*)"
+      "Bash(mysql:*)",
+      "WebFetch(domain:developer.uber.com)"
     ],
     "deny": []
   }
