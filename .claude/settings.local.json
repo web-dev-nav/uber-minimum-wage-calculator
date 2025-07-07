@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(composer create-project:*)",
+      "Bash(rm:*)",
+      "Bash(mv:*)",
+      "Bash(true)",
+      "Bash(php artisan make:model:*)",
+      "Bash(php artisan make:controller:*)",
+      "Bash(php artisan make:seeder:*)",
+      "Bash(php artisan migrate:fresh:*)",
+      "Bash(mysql:*)"
+    ],
+    "deny": []
+  }
+}
