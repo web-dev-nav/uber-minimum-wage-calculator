@@ -1,61 +1,193 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Uber Minimum Wage Calculator
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A Laravel-based web application that calculates minimum wage for Uber drivers across Canadian provinces, with special support for Ontario's Digital Platform Workers' Rights Act.
 
-## About Laravel
+## 🚗 Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Province-based minimum wage calculation** for all Canadian provinces/territories
+- **Ontario Digital Platform Workers' Rights Act** support ($17.20/hour minimum)
+- **IP-based province detection** for automatic location selection
+- **Time format support** (Hours:Minutes - e.g., 8:30)
+- **Net fare and tips integration** for complete earnings calculation
+- **Uber API integration** for automatic data import (optional)
+- **Responsive Uber-style UI** with clean, professional design
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 📊 Calculation Formula
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+1. **Minimum Wage = Active Time × Hourly Rate**
+2. **Hour Total = Minimum Wage - Net Fare** (amount owed to driver)
+3. **Total Earnings = Hour Total + Net Fare + Tips**
 
-## Learning Laravel
+The "Hour Total" represents the minimum wage top-up that platforms must pay drivers under the Digital Platform Workers' Rights Act.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 🛠 Installation
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### Prerequisites
+- PHP 8.1+
+- Composer
+- MySQL/SQLite
+- Node.js & NPM (for assets)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Setup Steps
 
-## Laravel Sponsors
+1. **Clone the repository**
+```bash
+git clone <repository-url>
+cd uber-minimum-wage-calculator
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+2. **Install dependencies**
+```bash
+composer install
+npm install
+```
 
-### Premium Partners
+3. **Environment configuration**
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+4. **Database setup**
+```bash
+# For MySQL
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=uber_wage_calculator
+DB_USERNAME=root
+DB_PASSWORD=your_password
 
-## Contributing
+# Or for SQLite (simpler)
+DB_CONNECTION=sqlite
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+5. **Run migrations and seeders**
+```bash
+php artisan migrate
+php artisan db:seed
+```
 
-## Code of Conduct
+6. **Start the development server**
+```bash
+php artisan serve
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Visit `http://localhost:8000` to use the calculator.
 
-## Security Vulnerabilities
+## 🔌 Uber API Integration (Optional)
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Setting up Uber Developer Account
 
-## License
+⚠️ **Important:** The current Uber API credentials in the code are invalid/demo credentials. To enable real Uber integration, you need to:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+1. **Register as Uber Developer**
+   - Go to [Uber Developer Portal](https://developer.uber.com/)
+   - Create an account and verify your identity
+   - Apply for API access (may require business verification)
+
+2. **Create an Application**
+   - Create a new app in the developer dashboard
+   - Set your redirect URI to: `http://your-domain.com/uber/callback`
+   - Note down your Client ID and Client Secret
+
+3. **Configure Environment Variables**
+```bash
+# Add to .env file
+UBER_CLIENT_ID=your_actual_client_id
+UBER_CLIENT_SECRET=your_actual_client_secret
+```
+
+4. **Request Appropriate Scopes**
+   - `partner.trips` - For trip data access
+   - `partner.payments` - For earnings data access
+   - May require special approval from Uber
+
+### API Limitations
+
+- **Access Restrictions:** Uber limits API access to verified partners
+- **Scope Requirements:** Trip and payment data requires special permissions
+- **Rate Limits:** API calls are limited per application
+- **Data Privacy:** Subject to Uber's data usage policies
+
+### Alternative Solutions
+
+If official API access isn't available:
+
+1. **Manual CSV Import** (recommended)
+   - Drivers export earnings from Uber Driver app
+   - Upload CSV files to the calculator
+   - Automatic parsing and calculation
+
+2. **Manual Data Entry** (current default)
+   - Drivers enter active time, net fare, and tips manually
+   - Still provides accurate minimum wage calculations
+
+## 🗺 Province Data
+
+The application includes current minimum wage rates for all Canadian provinces:
+
+- **Ontario:** $17.20/hr (Digital Platform Workers' Rights Act)
+- **British Columbia:** $17.85/hr
+- **Nunavut:** $19.00/hr (highest in Canada)
+- **Alberta:** $15.00/hr
+- And all other provinces/territories...
+
+Data is regularly updated based on [Government of Canada minimum wage rates](https://minwage-salairemin.service.canada.ca/en/general.html).
+
+## 🎨 Design
+
+The application features an authentic Uber-style design:
+- **Black header** with Uber branding
+- **Clean white cards** on dark background
+- **Professional typography** with UberMove font family
+- **Responsive design** for mobile and desktop
+
+## 🧪 Testing
+
+```bash
+# Run tests
+php artisan test
+
+# Run specific test suites
+php artisan test --testsuite=Feature
+php artisan test --testsuite=Unit
+```
+
+## 📝 API Endpoints
+
+### Public Endpoints
+- `GET /` - Main calculator interface
+- `POST /calculate` - Calculate wages
+- `GET /api/provinces` - Get province wage rates
+
+### Uber Integration Endpoints
+- `GET /uber/authorize` - Start Uber OAuth flow
+- `GET /uber/callback` - OAuth callback handler
+- `GET /uber/fetch-data` - Fetch driver trip/earnings data
+- `POST /uber/disconnect` - Disconnect from Uber
+
+## 🔒 Security
+
+- **CSRF Protection** on all forms
+- **Input validation** for all user data
+- **Secure OAuth flow** for Uber integration
+- **Session-based token storage** (recommend database storage for production)
+
+## 📄 License
+
+This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Submit a pull request
+
+## ⚠️ Disclaimer
+
+This calculator is for informational purposes only. Always verify calculations with official government sources and consult legal professionals for employment law questions.
+
+**Government Reference:** [Official Canadian Minimum Wage Rates](https://minwage-salairemin.service.canada.ca/en/general.html)

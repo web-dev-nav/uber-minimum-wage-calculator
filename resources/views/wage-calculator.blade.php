@@ -244,6 +244,32 @@
                 Calculate your total earnings including minimum wage, net fare, and tips. Ontario uses Digital Platform Workers' Rights Act ($17.20/hour)
             </p>
 
+            <!-- Uber Integration Section -->
+            <div class="gov-link" style="background: #f0f9ff; border-left-color: #000;">
+                <p style="margin-bottom: 12px;">
+                    🚗 <strong>Connect to Uber for Automatic Data:</strong><br>
+                    <small style="color: #6B7280;">Automatically import your active time, net fare, and tips from last 7 days</small>
+                </p>
+                @if(session('uber_access_token'))
+                    <div style="display: flex; gap: 10px; justify-content: center; align-items: center;">
+                        <span style="color: #059669; font-weight: 600;">✓ Connected to Uber</span>
+                        <button type="button" onclick="fetchUberData()" style="padding: 8px 16px; background: #000; color: white; border: none; border-radius: 6px; font-size: 14px; cursor: pointer;">
+                            Import Data
+                        </button>
+                        <form method="POST" action="/uber/disconnect" style="display: inline;">
+                            @csrf
+                            <button type="submit" style="padding: 8px 16px; background: #dc2626; color: white; border: none; border-radius: 6px; font-size: 14px; cursor: pointer;">
+                                Disconnect
+                            </button>
+                        </form>
+                    </div>
+                @else
+                    <a href="/uber/authorize" style="display: inline-block; padding: 10px 20px; background: #000; color: white; text-decoration: none; border-radius: 6px; font-weight: 600;">
+                        Connect to Uber
+                    </a>
+                @endif
+            </div>
+
             <form id="wageForm">
             <div class="form-group">
                 <label for="province">Select Province:</label>
@@ -301,6 +327,39 @@
     </div>
 
     <script>
+        function fetchUberData() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('error').style.display = 'none';
+            
+            fetch('/uber/fetch-data')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('loading').style.display = 'none';
+                    
+                    if (data.success) {
+                        // Convert decimal hours to H:MM format
+                        const hours = Math.floor(data.data.active_time);
+                        const minutes = Math.round((data.data.active_time - hours) * 60);
+                        const formattedTime = `${hours}:${minutes.toString().padStart(2, '0')}`;
+                        
+                        // Fill the form with Uber data
+                        document.getElementById('activeTime').value = formattedTime;
+                        document.getElementById('netFare').value = data.data.net_fare;
+                        document.getElementById('tips').value = data.data.tips;
+                        
+                        alert(`Uber data imported successfully!\nPeriod: ${data.data.period}\nActive Time: ${formattedTime}\nNet Fare: $${data.data.net_fare}\nTips: $${data.data.tips}`);
+                    } else {
+                        document.getElementById('error').textContent = data.message;
+                        document.getElementById('error').style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('error').textContent = 'Failed to fetch Uber data';
+                    document.getElementById('error').style.display = 'block';
+                });
+        }
+
         document.getElementById('wageForm').addEventListener('submit', function(e) {
             e.preventDefault();
             

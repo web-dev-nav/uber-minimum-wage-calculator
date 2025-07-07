@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'uber' => [
+        'client_id' => env('UBER_CLIENT_ID'),
+        'client_secret' => env('UBER_CLIENT_SECRET'),
+    ],
+
 ];
